@@ -1,0 +1,23 @@
+{
+    "manifest_version": 2,
+    "name": "Jisho",
+    "version": "1.0",
+
+    "description": "Extract word information from Jisho with a single click.", 
+
+    "browser_action": {
+        "default_title": "Jisho",
+        "default_icon": "icons/jisho.png",
+        "default_popup": "popup/popup.html"
+    },
+    "content_scripts": [
+        {
+            "matches": ["*://*.jisho.org/*"],
+            "js": ["scripts/main.js"]
+        }
+    ],
+    "permissions": [
+        "storage"
+    ]
+}
+
