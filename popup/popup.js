@@ -114,7 +114,7 @@ async function PopulateForm()
     if(JishoContent.length == 0)
     {
         var element = document.createElement('div');
-        element.innerHTML = `Empty registry.`;
+        element.innerText = `Empty registry.`;
         content.append(element);
         return;
     }
@@ -131,7 +131,7 @@ async function PopulateForm()
         button.setAttribute("position", i);
         button.onclick = Delete;
 
-        element.innerHTML = `${kword} - ${hword}   `;
+        element.innerText = `${kword} - ${hword}   `;
         element.append(button);
 
         content.append(element);

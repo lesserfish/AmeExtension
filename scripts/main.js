@@ -1,5 +1,6 @@
 function startup() {
 
+
     var primary = document.getElementById('primary');
     if(!primary){
         return;
@@ -101,9 +102,15 @@ function AddLink(element, content)
     var kword = content.kword;
     var hword = content.hword;
 
-    var element = `<a class="concept_light-status_link helper" kword='${kword}' hword='${hword}')">Add to Memory</a>`
+    
+    var element = document.createElement('a');
+    element.classList.add("concept_light-status_link");
+    element.classList.add("helper");
+    element.setAttribute("kword", kword);
+    element.setAttribute("hword", hword);
+    element.innerText = "Add to Registry";
 
-    status.insertAdjacentHTML('beforeend', element);
+    status.appendChild(element);
 }
 function RegisterEvents(){
     var elements = document.getElementsByClassName('helper');
