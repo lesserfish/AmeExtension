@@ -1,13 +1,13 @@
 {
     "manifest_version": 2,
-    "name": "Ame",
+    "name": "AmeExtension",
     "version": "1.0",
 
     "description": "Extract word information from Jisho with a single click and downloads it as an Anki dictionary", 
 
     "browser_action": {
-        "default_title": "Jisho",
-        "default_icon": "icons/icon.png",
+        "default_title": "AmeExtension",
+        "default_icon": "icons/icon48.png",
         "default_popup": "popup/popup.html"
     },
     "content_scripts": [
@@ -16,6 +16,10 @@
             "js": ["scripts/main.js"]
         }
     ],
+    "icons": {
+        "48": "icons/icon48.png",
+        "96": "icons/icon96.png"
+    },
     "permissions": [
         "storage"
     ]
