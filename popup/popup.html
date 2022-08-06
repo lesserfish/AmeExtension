@@ -1,5 +1,41 @@
+<!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+        <link href="./popup.css" rel="stylesheet">
+    </head>
     <body>
-        Hello!
+        <section class="section">
+            <div class="container">
+                <h1 id="Warning"></h1>
+                <div class="content-holder">
+                    <div id="content">
+                    </div>
+                </div>
+                <div class="controls">
+                    <button id="deleteall" class="button is-danger">Delete all</button>
+                    <div id="dropdown" class="dropdown">
+                        <div class="dropdown-trigger">
+                            <button id="dropdownclick" class="button" aria-haspopup="true" aria-controls="dropdown-menu3">
+                                <span>Download</span>
+                                <span class="icon is-small">
+                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-menu3" role="menu">
+                            <div class="dropdown-content">
+                                <a id='txtclick' href="#" class="dropdown-item"> TXT </a>
+                                <a id='jsonclick' href="#" class="dropdown-item"> Json </a>
+                                <a id='ameclick' href="#" class="dropdown-item"> Anki </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <script src="./popup.js"></script>
     </body>
 </html>

@@ -1,0 +1,25 @@
+body {
+    width: 500px;
+    height: 580px;
+    overflow-x: hidden;
+}
+.container
+{
+    align-items: center;
+    text-align: center;
+}
+
+.content-holder {
+        left: 50%;
+        margin: auto;
+        height: 18em;
+        width: 80%; 
+        overflow-x: hidden;
+        overflow-y: auto;
+        text-align: center;
+        outline: 3px solid rgb(209, 209, 209);
+        box-shadow: 0 10px rgb(221, 221, 221);
+}
+.controls{
+    margin-top: 50px;
+}

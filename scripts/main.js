@@ -1,9 +1,7 @@
 function startup() {
-    console.log("Started!");
 
     var primary = document.getElementById('primary');
     if(!primary){
-        console.error("Could not find primary");
         return;
     }
 
@@ -137,9 +135,7 @@ async function Register (e){
 
 // store the objects
     await browser.storage.local.set({jisho_content});
-
-    var results = await browser.storage.local.get("jisho_content");
-    console.log(results);
+//var results = await browser.storage.local.get("jisho_content");
 }
 function InsertHtml(element)
 {

@@ -1,13 +1,13 @@
 {
     "manifest_version": 2,
-    "name": "Jisho",
+    "name": "Ame",
     "version": "1.0",
 
-    "description": "Extract word information from Jisho with a single click.", 
+    "description": "Extract word information from Jisho with a single click and downloads it as an Anki dictionary", 
 
     "browser_action": {
         "default_title": "Jisho",
-        "default_icon": "icons/jisho.png",
+        "default_icon": "icons/icon.png",
         "default_popup": "popup/popup.html"
     },
     "content_scripts": [
