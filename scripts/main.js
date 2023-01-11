@@ -1,4 +1,4 @@
-function startup() {
+async function startup() {
 
 
     var primary = document.getElementById('primary');
@@ -15,7 +15,7 @@ function startup() {
         for(let i = 0; i < elements.length; i++)
         {
             var element = elements[i];
-            InsertHtml(element);
+            await InsertHtml(element);
         }
     }
     if(concepts)
@@ -24,7 +24,7 @@ function startup() {
         for(let i = 0; i < elements.length; i++)
         {
             var element = elements[i];
-            InsertHtml(element);
+            await InsertHtml(element);
         }
     }
 
@@ -92,7 +92,7 @@ function GetInfo(element)
     return {"kword" : kword, "hword" : hword};
 
 }
-function AddLink(element, content)
+async function AddLink(element, content)
 {
     var status = element.getElementsByClassName('concept_light-status')[0];
     if(!status){
@@ -102,16 +102,28 @@ function AddLink(element, content)
     var kword = content.kword;
     var hword = content.hword;
 
-    
+    // Check if work is already on jisho_content
+
+    var isOnStorage = await IsOnStorage(kword, hword)
+
     var element = document.createElement('a');
     element.classList.add("concept_light-status_link");
     element.classList.add("helper");
     element.setAttribute("kword", kword);
     element.setAttribute("hword", hword);
-    element.innerText = "Add to Registry";
+
+    if(isOnStorage){
+        element.setAttribute("on_storage", 1);
+        element.innerText = "Remove from Registry";
+    } 
+    else {
+        element.setAttribute("on_storage", 0);
+        element.innerText = "Add to Registry";
+    }
 
     status.appendChild(element);
 }
+
 function RegisterEvents(){
     var elements = document.getElementsByClassName('helper');
 
@@ -121,30 +133,70 @@ function RegisterEvents(){
         element.addEventListener('click', Register);
     }
 }
-async function Register (e){
-    var target = e.target;
-    var kword = target.getAttribute('kword');
-    var hword = target.getAttribute('hword');
-    
+async function IsOnStorage(kword, hword){
     var jisho_content = [];
-
-    var load = await browser.storage.local.get("jisho_content");
+    var load = await browser.storage.sync.get("jisho_content");
 
     if(load.jisho_content){
         jisho_content = load.jisho_content;
     }
 
-    var word = {
-      kword: kword,
-      hword: hword,
+    for(var i = 0; i < jisho_content.length; i++){
+        var current_word = jisho_content[i]
+        if(current_word.kword == kword && current_word.hword == hword)
+        {
+            return true
+        }
     }
-    jisho_content.push(word);
+    return false
+
+}
+async function Register (e){
+    var target = e.target;
+    var kword = target.getAttribute('kword');
+    var hword = target.getAttribute('hword');
+    var on_storage = target.getAttribute('on_storage');
+    
+    var jisho_content = [];
+
+    var load = await browser.storage.sync.get("jisho_content");
+
+    if(load.jisho_content){
+        jisho_content = load.jisho_content;
+    }
+
+    if(on_storage == 0){
+        var word = {
+          kword: kword,
+          hword: hword,
+        }
+        jisho_content.push(word);
+        
+        target.setAttribute("on_storage", 1);
+        target.innerText = "Remove from Registry";
+        
+        await browser.storage.sync.set({jisho_content});
+    } else {
+        var updated_jisho = []
+        for(var i = 0; i < jisho_content.length; i++){
+            var current_word = jisho_content[i]
+            if(current_word.kword != kword || current_word.hword != hword)
+            {
+                updated_jisho.push(current_word)
+            }
+        }
+        jisho_content = updated_jisho
+
+        target.setAttribute("on_storage", 0);
+        target.innerText = "Add to Registry";
+
+        await browser.storage.sync.set({jisho_content});
+    }
 
 // store the objects
-    await browser.storage.local.set({jisho_content});
-//var results = await browser.storage.local.get("jisho_content");
+//var results = await browser.storage.sync.get("jisho_content");
 }
-function InsertHtml(element)
+async function InsertHtml(element)
 {
     var wrapper = element.getElementsByClassName("concept_light-wrapper")[0];
     if(!wrapper){
@@ -153,6 +205,6 @@ function InsertHtml(element)
 
     var info = GetInfo(wrapper);
 
-    AddLink(wrapper, info);
+    await AddLink(wrapper, info);
 }
 window.onload = startup()

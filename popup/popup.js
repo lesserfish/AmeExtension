@@ -79,7 +79,7 @@ function HandleAme(ev)
 }
 async function UpdateJishoContent()
 {
-    var results = await browser.storage.local.get("jisho_content");
+    var results = await browser.storage.sync.get("jisho_content");
     JishoContent = results.jisho_content;
 }
 async function DeleteAll()
@@ -87,7 +87,7 @@ async function DeleteAll()
     JishoContent = [];
 
     var jisho_content = JishoContent;
-    await browser.storage.local.set({jisho_content});
+    await browser.storage.sync.set({jisho_content});
 
     PopulateForm();
 
@@ -98,7 +98,7 @@ async function Delete(ev)
     JishoContent.splice(position, 1);
 
     var jisho_content = JishoContent;
-    await browser.storage.local.set({jisho_content});
+    await browser.storage.sync.set({jisho_content});
 
     PopulateForm();
 }
