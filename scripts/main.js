@@ -1,5 +1,95 @@
+var MAX_SEG_SIZE = 8000
+var Dictionary = []
+
+function ByteSize(str)
+{
+    return (new TextEncoder().encode(str)).length;
+}
+function AppendSegment(segment) {
+    var elements = segment.split('\n');
+    for(var i = 0; i < elements.length; i++)
+    {
+        element = elements[i];
+        if(element.length == 0){
+            continue
+        }
+        var k = "";
+        var h = "";
+        var components = element.split(':');
+        k = components[0];
+        if(components.length > 1){
+            h = components[1];
+        }
+        var word = {
+          k: k,
+          h: h,
+        }
+        Dictionary.push(word)
+    }
+}
+async function LoadDictionary() {
+    var promise = browser.storage.sync.get();
+    promise.then( 
+        async function(storage) {
+            if("segcount" in storage){
+
+                for(var i = 1; i <= storage['segcount']; i++)
+                {
+                    var segname = "seg_" + i.toString();
+                    if(!segname in storage)
+                    {
+                        console.error("CRITICAL ERROR: Attempted to get non-existent segment");
+                    }
+                    AppendSegment(storage[segname])
+
+                }
+            } else {
+                SaveDictionary();
+            }
+        },
+        async function(e) {
+            console.error("Error: " + e);
+        });
+    return await promise
+}
+
+async function PushSegment(segment, segcount){
+    var segname = "seg_" + segcount.toString();
+    var map = {}
+    map[segname] = segment
+    await browser.storage.sync.set(map);
+}
+function ElementAsString(element)
+{
+    var output = element['k'] + ":" + element['h'];
+    return output;
+}
+async function SaveDictionary() {
+    var segcount = 1
+    var current_segment = ""
+    for(var i = 0; i < Dictionary.length; i++)
+    {
+        var element = ElementAsString(Dictionary[i])
+        if(ByteSize(current_segment) + ByteSize("\n") + ByteSize(element) > MAX_SEG_SIZE)
+        {
+            PushSegment(current_segment, segcount);
+            current_segment = element;
+            segcount += 1;
+        } else {
+            if(current_segment.length == 0){
+                current_segment = element;
+            } else {
+                current_segment = current_segment + "\n" + element;
+            }
+        }
+    }
+    PushSegment(current_segment, segcount);
+    await browser.storage.sync.set({segcount: segcount})
+}
 async function startup() {
 
+
+    await LoadDictionary()
 
     var primary = document.getElementById('primary');
     if(!primary){
@@ -109,8 +199,8 @@ async function AddLink(element, content)
     var element = document.createElement('a');
     element.classList.add("concept_light-status_link");
     element.classList.add("helper");
-    element.setAttribute("kword", kword);
-    element.setAttribute("hword", hword);
+    element.setAttribute("k", kword);
+    element.setAttribute("h", hword);
 
     if(isOnStorage){
         element.setAttribute("on_storage", 1);
@@ -133,17 +223,11 @@ function RegisterEvents(){
         element.addEventListener('click', Register);
     }
 }
-async function IsOnStorage(kword, hword){
-    var jisho_content = [];
-    var load = await browser.storage.sync.get("jisho_content");
-
-    if(load.jisho_content){
-        jisho_content = load.jisho_content;
-    }
-
-    for(var i = 0; i < jisho_content.length; i++){
-        var current_word = jisho_content[i]
-        if(current_word.kword == kword && current_word.hword == hword)
+async function IsOnStorage(k, h){
+    console.log(Dictionary)
+    for(var i = 0; i < Dictionary.length; i++){
+        var current_word = Dictionary[i]
+        if(current_word['k'] == k && current_word['h'] == h)
         {
             return true
         }
@@ -153,44 +237,36 @@ async function IsOnStorage(kword, hword){
 }
 async function Register (e){
     var target = e.target;
-    var kword = target.getAttribute('kword');
-    var hword = target.getAttribute('hword');
+    var k = target.getAttribute('k');
+    var h = target.getAttribute('h');
     var on_storage = target.getAttribute('on_storage');
     
-    var jisho_content = [];
-
-    var load = await browser.storage.sync.get("jisho_content");
-
-    if(load.jisho_content){
-        jisho_content = load.jisho_content;
-    }
-
     if(on_storage == 0){
         var word = {
-          kword: kword,
-          hword: hword,
+          k: k,
+          h: h,
         }
-        jisho_content.push(word);
+        Dictionary.push(word);
         
         target.setAttribute("on_storage", 1);
         target.innerText = "Remove from Registry";
         
-        await browser.storage.sync.set({jisho_content});
+        await SaveDictionary()
     } else {
-        var updated_jisho = []
-        for(var i = 0; i < jisho_content.length; i++){
-            var current_word = jisho_content[i]
-            if(current_word.kword != kword || current_word.hword != hword)
+        var NewDictionary = []
+        for(var i = 0; i < Dictionary.length; i++){
+            var current_word = Dictionary[i]
+            if(current_word.k != k || current_word.h != h)
             {
-                updated_jisho.push(current_word)
+                NewDictionary.push(current_word);
             }
         }
-        jisho_content = updated_jisho
+        Dictionary = NewDictionary;
 
         target.setAttribute("on_storage", 0);
         target.innerText = "Add to Registry";
 
-        await browser.storage.sync.set({jisho_content});
+        await SaveDictionary();
     }
 
 // store the objects
